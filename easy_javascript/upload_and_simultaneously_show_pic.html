@@ -10,9 +10,49 @@
 <script>
   var loadFile = function(event) {
     var output = document.getElementById('output');
+    // event.target.files[0] 本身是個 BLOB物件
     output.src = URL.createObjectURL(event.target.files[0]);
   };
 </script>
+
+<!--以下沒試過-->
+
+<!--
+   有一個 二進制資料，要讓其呈為在 image中：
+
+    (1)
+       <img src="data:image/jpeg;base64,二進制資料">
+
+       格式為： 在 src 裡 加上 data:image/jpeg;base64,二進制資料
+
+  -----------------------------------------------------------------------------------
+
+   (2) 將 base64 的二進制資料轉為 BLOB 物件
+
+      function base64ToBlob(b64data = '', contentType = '', sliceSize = 512){
+        var  byteCharacters = atob(b64data);
+        var byteArrays = [];
+
+       for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        var slice = byteCharacters.slice(offset, offset + sliceSize);
+        var byteNumbers = [];
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers.push(slice.charCodeAt(i));
+        }
+
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+
+      var result = new Blob(byteArrays, {
+        type: contentType
+      });
+
+      return result;
+      }
+
+      將得到的 result 拿去 output.src = URL.createObjectURL(result); 即可
+
+-->
 
 
 </body>
