@@ -4,12 +4,23 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,minimal-ui:ios">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
-            <title>表格框線 TD的部份(可取消框線)</title>
+            <title>表格框線 TD的部份(可取消框線) + 固定欄寬自動換行</title>
             <link rel="stylesheet" href="">
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
       </head>
 
       <body>
+
+            <!--
+                  設定 td 的固定欄寬
+                  加入以下，會自動換行 (px的有測過可行，但 % 不確定)
+                  table {
+                        word-break:break-all;
+                        table-layout:fixed;
+
+                  }
+
+            -->
 
             <!--
                   更快的方法是： 直接加 css(以下這段)
