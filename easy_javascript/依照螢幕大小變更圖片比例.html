@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+      <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,minimal-ui:ios">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>圖片依照螢幕大小變更比例 </title>
+            <link rel="stylesheet" href="">
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      </head>
+
+      <body>
+
+            <!--
+                  之前很早就想過解法，但沒寫成筆記
+            -->
+
+            <img src="" id="img">
+
+            <script>
+                var img = document.getElementById("img");
+            var range = 0.75;  //期望螢幕大小 長寬 乘多少比例的大小
+
+            // window.screen.availWidth 是螢幕大小 (還有 clientWidth 這種的，實際要拿來看值來決定)
+            var wantWidth = window.screen.availWidth * range;
+            var wantHeigth = window.screen.availHeight * range;
+
+        // 先讓 圖片寬度變為 wantWidth ，所以會運算 高度 (如果算出來的高度 > 預期高度 ， 就要換 邊算)
+        var per = wantWidth / img.naturalWidth;
+        var afterHeigth = img.naturalHeight * per;
+        var afterWidth = img.naturalWidth * per;
+
+        // 如果變動後的 高度 > 實際能接受的高度 => 換成變高度
+        if (afterHeigth > tmpHeigth) {
+            console.log("高度 > 實際能接受。故換成算寬度")
+            per = tmpHeigth / this.img.naturalHeight;
+            afterHeigth = this.img.naturalHeight * per;
+            afterWidth = this.img.naturalWidth * per;
+        }
+
+        img.width = afterWidth;
+        img.height = afterHeigth;
+
+        </script>
+
+      </body>
+</html>
