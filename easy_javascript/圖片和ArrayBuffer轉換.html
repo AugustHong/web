@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>圖片 和 ArrayBuffer 轉換</title>
+  </head>
+
+  <!--
+      參考網址：https://blog.csdn.net/qq_36562973/article/details/109097985
+               https://www.shuzhiduo.com/A/n2d9KrQYJD/
+    -->
+
+  <body>
+    <input type="file" id="UpImg" onchange="filechange()">
+		<img id="ResultImg" src="" width="100%">
+        <textarea id="ResultText" style="width: 100%;height: 500px;"></textarea>
+        <textarea id="ResultText2" style="width: 100%;height: 500px;"></textarea>
+        <img id="T" src="" width="100%">
+
+        <script>
+            // ArrayBuffer 轉 base64  (用於Ajax 回傳用的)
+            function arrayBufferToBase64(buffer){
+                var binary = '';
+                var bytes = new Uint8Array(buffer);
+                for (var i = 0; i < bytes.byteLength; i++){
+                    binary += String.fromCharCode(bytes[i]);
+                }
+
+                return window.btoa(binary);
+            }
+
+            // 將得到的 圖片 轉為 buffer
+            function filechange(){
+                var files = document.getElementById("UpImg").files[0];
+                var type = files.type;
+
+                var url = "";  // 結果
+
+                // 讀出 arrayBuffer
+                var reads = new FileReader();
+		        reads.readAsArrayBuffer(files);
+		        reads.onload = function(e){
+			        console.log(reads.result)
+			        console.log(new Blob([reads.result],{'type':type}))
+			        // 注意：里面的this指的就是reads，所以reads.result == this.result
+			        //document.getElementById("ResultImg").src = this.result;
+
+                    // 試過無法抓出 arrayBuffer 丟給我們的第一隻Function
+		        }
+
+                // 讀出網址形
+                var read2 = new FileReader();
+                read2.onload = function () {
+                    // 這個確實可以得到完整的網址路徑 (而且己經加上 data:image/jpeg;base64,)
+                    //var url = "data:image/jpeg;base64," + read2.result;
+                    //console.log(url);
+                    document.getElementById("ResultText").value = read2.result;
+                    document.getElementById("ResultImg").src = read2.result;
+
+                    // 因為太長了，直接丟在 html 中會失效，所以每 210字換一行
+                    var rList = [];
+                    var source = document.getElementById("ResultText").value;
+                    var len = source.length;
+                    var linesTextNum = 210;
+                    var inx = 0;
+                    while(inx <= len){
+                        rList.push('"' + source.substr(inx, linesTextNum) + '"');
+                        inx += linesTextNum;
+                    }
+                    document.getElementById("ResultText2").value = "var imgSource = " + rList.join(" + \n") + ";";
+                }
+                read2.readAsDataURL(files);
+            }
+        </script>
+  </body>
+</html>
