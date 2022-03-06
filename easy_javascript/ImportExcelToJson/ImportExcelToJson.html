@@ -8,6 +8,16 @@
 </head>
 
 <body>
+    <div>
+        備註：
+        此工具有小問題，遇到有空格資料時，會讀不到空格。所以請替換成特定文字，等匯出後再轉回空白。
+
+        而Excel 的 將空格轉成特定文字以下步驟：
+        (1) 選取範圍
+        (2) 工具列/編輯/到/特殊/空格 再按下確定
+        (3) 在編輯欄輸入 特定字串後， 按下 Ctrl + Enter
+    </div>
+
     <input type="file" onchange="importExcel(this)" accept=".xls, .xlsx" />
     <div id="demo"></div>
     <script>
