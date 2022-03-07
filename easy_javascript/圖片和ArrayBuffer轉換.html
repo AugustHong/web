@@ -52,6 +52,11 @@
                 var read2 = new FileReader();
                 read2.onload = function () {
                     // 這個確實可以得到完整的網址路徑 (而且己經加上 data:image/jpeg;base64,)
+                    /*
+                      在 c# 中
+                      byte[] buff = System.IO.File.ReadAllBytes(goalPath);
+                      string result = "data:image/jpeg;base64," + Convert.ToBase64String(buff);
+                    */
                     //var url = "data:image/jpeg;base64," + read2.result;
                     //console.log(url);
                     document.getElementById("ResultText").value = read2.result;
