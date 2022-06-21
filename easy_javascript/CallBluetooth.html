@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>藍芽</title>
+  </head>
+  <body>
+    <!--
+      參考網址： https://www.gushiciku.cn/pl/2UNC/zh-tw 、 https://web.dev/bluetooth/ 、 https://developer.mozilla.org/zh-CN/docs/Web/API/Bluetooth/requestDevice
+      但我實作我手機開藍芽卻沒找到，且執行起來怪怪的
+    -->
+
+    <!--注意：他的功能一定要透過按鈕來觸發，不能直接使用-->
+    <!--請先開啟藍芽功能-->
+    <button id="StartBtn" onclick="StartBlueTooth();">開始</button>
+
+  </body>
+
+  <script>
+
+        // 監聽事件
+        function handleBatteryLevelChanged(event) {
+          const batteryLevel = event.target.value.getUint8(0);
+          console.log('Battery percentage is ' + batteryLevel);
+        }
+
+        // 建立函式 和 附與 Button 按鈕事件 (因為都要用 await 的方式，所以要長這樣)
+        async function StartBlueTooth()
+        {
+    /*
+                  //扫描选项匹配任何设备广播：
+        //. 标准心率服务。
+        //. 两个16位服务ID 0x1802和0x1803。
+        //. 专有的128位UUID服务c48e6067-5295-48d3-8d5c-0395f61792b1。
+        //. 名称为“设备名”的设备。
+        //. 名称以“前缀”开头的设备。
+        //
+
+        //如果设备包含电池服务，
+
+        //即使设备不通告该服务，也可以访问电池服务。
+                  let options = {
+          filters: [
+            {services: ['heart_rate']},
+            {services: [0x1802, 0x1803]},
+            {services: ['c48e6067-5295-48d3-8d5c-0395f61792b1']},
+            {name: '设备名'},
+            {namePrefix: '前缀'}
+          ],
+          optionalServices: ['battery_service']
+        }
+                  */
+              /*
+        optionalServices[]: 一个 BluetoothServiceUUID 數組。
+        acceptAllDevices 是否接受所有藍芽裝置，預設false (設為true 就不能放 filters)
+        */
+
+          let options = {
+                filters: [{ namePrefix: "Mini" }],
+                //acceptAllDevices: true,
+                optionalServices: ['battery_service']
+              };
+
+              let device = await navigator.bluetooth
+                .requestDevice(options)
+                .then(function (device) {
+                  console.log(device);
+                  console.log("名稱: " + device.name);
+                    // 連接
+                    return device.gatt.connect();
+                })
+                .catch(function (error) {
+                  console.log("發生錯誤： " + error);
+                });
+
+                if (device != null){
+                  let battery_service = await device.getPrimaryService('battery_service');
+                  console.log(battery_service);
+                  let battery_level = await battery_service.getCharacteristic('battery_level'); //電量
+                  console.log(battery_level);
+                  let battery_v = await battery_level.readValue().getUint8(0);  //取值
+                  console.log(battery_v);
+
+                  // 如果是取中文
+                  // (詳細看參考網址)
+                  // const decoder = new TextDecoder('utf-8');
+                  // decoder.decode(battery_level.readValue());
+
+                  //也可加入監聽
+                  battery_level.addEventListener('characteristicvaluechanged',
+                                          handleBatteryLevelChanged);
+
+                  // 通知
+                  battery_level.startNotifications();
+
+                  // 寫入 訊號1  (電量不能寫入，這邊只是示範一下詳細看參考網址)
+                  const resetEnergyExpended = Uint8Array.of(1);
+                  battery_level.writeValue(resetEnergyExpended);
+
+                  // 如果是取中中
+                  // (詳細看參考網址)
+                  //const encoder = new TextEncoder('utf-8');
+                  //const userDescription = encoder.encode('Test');
+                  //battery_level.writeValue(userDescription);
+                }
+        }
+  </script>
+</html>
