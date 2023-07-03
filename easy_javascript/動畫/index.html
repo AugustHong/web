@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8" />
+  <head>
+    <title>動畫</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--隨網站而變大變小-->
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script>
+      // 共用function
+      // 取得 top 和 left 的 "數值" (objId = 物件id, type = T 為 top ； L 為 left)
+      function GetTopLeftValue(objId, type){
+        var result = 0;
+
+        if (type == "L"){
+          var v = document.getElementById(objId).style.left;
+          return parseInt(v.replace("px", ""));
+        }
+        else
+        {
+          var v = document.getElementById(objId).style.top;
+          return parseInt(v.replace("px", ""));
+        }
+
+        return resuslt;
+      }
+
+      // 移動到指定位置
+      // (objId = 物件id, goalTop = 目標 Top, goalLeft = 目標Left, totalRunTime = 總共執行時間, runTimes = 執行頻次時間)
+      // 例如： 總共執行時間 = 1000(1秒)， 執行頻次時間 = 200  那就是會跑5次
+      function Move(objId, goalTop, goalLeft, totalRunTime, runTimes){
+        var times = totalRunTime / runTimes;  // 總共執行幾次 (要算 每次移動多少距離)
+        var oldTop = GetTopLeftValue(objId, "T");
+        var oldLeft = GetTopLeftValue(objId, "L");
+
+        var dxTop = (goalTop - oldTop) / times;
+        var dxLeft = (goalLeft - oldLeft) / times;
+
+        for(var i = 0; i < totalRunTime; i+= runTimes){
+          // 算好時間量跑setTimeout
+          setTimeout(function(){
+            var rTop = GetTopLeftValue(objId, "T") + dxTop;
+            var rLeft = GetTopLeftValue(objId, "L") + dxLeft;
+
+            document.getElementById(objId).style.top = rTop.toString() + "px";
+            document.getElementById(objId).style.left = rLeft.toString() + "px";
+          }, i);
+        }
+      }
+
+      // 秀出圖片
+      // (objId = 秀出的圖片id, totalRunTime = 總共執行時間, top = 出現位置, left = 出現位置)
+      function ShowPic(objId, totalRunTime, top, left){
+        // 算好時間量跑setTimeout
+        setTimeout(function(){
+
+            if (top != undefined && top != null && top != ""){
+              document.getElementById(objId).style.top = (top).toString() + "px";
+            }
+
+            if (left != undefined && left != null && left != ""){
+              document.getElementById(objId).style.left = (left).toString() + "px";
+            }
+
+            document.getElementById(objId).style.display = "block";
+          }, totalRunTime);
+      }
+
+      // 圖片消失
+      // (objId = 秀出的圖片id, totalRunTime = 總共執行時間)
+      function HidePic(objId, totalRunTime){
+        // 算好時間量跑setTimeout
+        setTimeout(function(){
+            document.getElementById(objId).style.display = "none";
+          }, totalRunTime);
+      }
+
+      // 上面三個是基本函式，下面就是組合
+      function MakeAction(){
+        Move('B', 200, 400, 180, 30);
+        ShowPic('C', 680, 300, 400); // 要包含上1個的 180秒，所以是 680
+        HidePic('C', 2680);  // 要包含上面的 680 + 2秒(2000) = 2680
+      }
+    </script>
+  </head>
+  <body>
+
+     功能列表： <br>
+     <button onclick="Move('B', 200, 400, 180, 30);" >移動</button>
+     <button onclick="ShowPic('C', 500, 300, 400);" >圖片0.5秒後出現</button>
+     <button onclick="HidePic('C', 2000);" >圖片2秒後消失</button>
+     <button onclick="MakeAction();" >先移動，再出現圖片，然後過2秒後消失圖片</button>
+
+    <img id="A" src="img/a.png" style="position: absolute;top : 300px; left: 100px;">
+    <img id="B" src="img/b.png" style="position: absolute;top : 300px; left: 1000px;">
+    <img id="C" src="img/c.png" style="position: absolute;top : 500px; left: 550px;display:none;">
+  </body>
+</html>
