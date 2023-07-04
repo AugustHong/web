@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/jQueryRotate.js"></script>
+<script>
+//轉幾度
+function Rotate(objId, range){
+    $("#" + objId).rotate(range);
+}
+</script>
+
+</head>
+<body>
+
+轉幾度： <input type="text" id="Range" value="180" />度 <br>
+<button onclick="Rotate('A', parseInt(document.getElementById('Range').value))">開始旋轉</button> <br>
+
+圖片呈現：<br>
+<img src="img/a.png" id="A"> 
+
+</body>
+</html>
