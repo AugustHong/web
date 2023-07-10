@@ -8,13 +8,60 @@
 function Rotate(objId, range){
     $("#" + objId).rotate(range);
 }
+
+// 轉幾度
+function Rotate2(objId, range){
+    var range = (range)%360;
+    document.getElementById(objId).style.transform = 'rotate(' + range + 'deg)';
+}
+
+// 水平翻轉
+function H_Turn(objId){
+    var o = document.getElementById(objId);
+    var v = 'scale(-1, 1)';
+
+    // 如果原本有 包含 scale 就把 X 的部份 乘上 -1；反之 直接給 v
+    if (o.style.transform.indexOf('scale') >= 0){
+        var tmp = o.style.transform.replace('scale(', '').replace(')', '').replace(' ', '');
+        var s = tmp.split(',');
+        var x = parseInt(s[0]);
+        var y = parseInt(s[1]);
+        o.style.transform = 'scale(' + (-1 * x).toString() + ', ' + (y).toString() + ')'; 
+    }
+    else
+    {
+        o.style.transform = v;
+    }
+}
+
+// 垂直翻轉
+function V_Turn(objId){
+    var o = document.getElementById(objId);
+    var v = 'scale(1, -1)';
+
+    // 如果原本有 包含 scale 就把 Y 的部份 乘上 -1；反之 直接給 v
+    if (o.style.transform.indexOf('scale') >= 0){
+        var tmp = o.style.transform.replace('scale(', '').replace(')', '').replace(' ', '');
+        var s = tmp.split(',');
+        var x = parseInt(s[0]);
+        var y = parseInt(s[1]);
+        o.style.transform = 'scale(' + (x).toString() + ', ' + (-1 * y).toString() + ')'; 
+    }
+    else
+    {
+        o.style.transform = v;
+    }
+}
 </script>
 
 </head>
 <body>
 
 轉幾度： <input type="text" id="Range" value="180" />度 <br>
-<button onclick="Rotate('A', parseInt(document.getElementById('Range').value))">開始旋轉</button> <br>
+<button onclick="Rotate('A', parseInt(document.getElementById('Range').value))">開始旋轉(寫法1)</button> <br>
+<button onclick="Rotate2('A', parseInt(document.getElementById('Range').value))">開始旋轉(寫法2)</button> <br>
+<button onclick="H_Turn('A')">水平翻轉</button> <br>
+<button onclick="V_Turn('A')">垂直翻轉</button> <br>
 
 圖片呈現：<br>
 <img src="img/a.png" id="A"> 
