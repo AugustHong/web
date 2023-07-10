@@ -28,7 +28,8 @@
       // 移動到指定位置
       // (objId = 物件id, goalTop = 目標 Top, goalLeft = 目標Left, totalRunTime = 總共執行時間, runTimes = 執行頻次時間, lastRunTime = 前次執行時間)
       // 例如： 總共執行時間 = 1000(1秒)， 前次執行動間 = 200， 執行頻次時間 = 200  那就是會跑 (1000-200) / 200 = 4次
-      function Move(objId, goalTop, goalLeft, totalRunTime, runTimes, lastRunTime){
+      // initTop = 初始Top, initLeft = 初始Left (因為先出現圖片再移動此圖片的問題，這邊會先算出差異。但那時圖片還沒移位置導致錯誤)
+      function Move(objId, goalTop, goalLeft, totalRunTime, runTimes, lastRunTime, initTop, initLeft){
 
         if(lastRunTime == undefined || lastRunTime == null || lastRunTime == ""){
           lastRunTime = 0;
@@ -39,8 +40,18 @@
         var oldTop = GetTopLeftValue(objId, "T");
         var oldLeft = GetTopLeftValue(objId, "L");
 
-        var dxTop = (goalTop - oldTop) / times;
-        var dxLeft = (goalLeft - oldLeft) / times;
+        if(initTop == undefined || initTop == null || initTop == ""){
+          initTop = oldTop;
+        }
+
+        if(initLeft == undefined || initLeft == null || initLeft == ""){
+          initLeft = oldLeft;
+        }
+
+        var dxTop = (goalTop - initTop) / times;
+        console.log('dxTop = ' + dxTop);
+        var dxLeft = (goalLeft - initLeft) / times;
+        console.log('dxLeft = ' + dxLeft);
 
         for(var i = 0; i < diffRunTime; i+= runTimes){
           // 算好時間量跑setTimeout
@@ -97,6 +108,14 @@
         ShowPic('C', 'img/c.png', 680, 300, 400); // 要包含上1個的 180秒，所以是 680
         HidePic('C', 2680);  // 要包含上面的 680 + 2秒(2000) = 2680
       }
+
+      // 先出現圖片並移動此圖片
+      function ShowAndMove(){
+        var initTop = 300;
+        var initLeft = 500;
+        ShowPic('C', 'img/c.png', 0, initTop, initLeft);
+        Move('C', initTop + 300, initLeft, 350, 50, 50, initTop, initLeft);
+      }
     </script>
   </head>
   <body>
@@ -106,6 +125,7 @@
      <button onclick="ShowPic('C', 'img/c.png', 500, 300, 400);" >圖片0.5秒後出現</button>
      <button onclick="HidePic('C', 2000);" >圖片2秒後消失</button>
      <button onclick="MakeAction();" >先移動，再出現圖片，然後過2秒後消失圖片</button>
+     <button onclick="ShowAndMove();" >先出現圖片並移動此圖片</button>
 
     <img id="A" src="img/a.png" style="position: absolute;top : 300px; left: 100px;">
     <img id="B" src="img/b.png" style="position: absolute;top : 300px; left: 1000px;">
