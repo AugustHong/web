@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8" />
+  <head>
+    <title>JS使用物件導向</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--隨網站而變大變小-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        // 宣告 A物件
+        class A {
+            // 建構式 (放變數)
+            constructor(){
+                this.name = "A";
+            }
+
+            // 自定函式
+            showName(){
+                console.log(this.name);
+            }
+        }
+
+        // 宣告 B 物件 (繼承A)
+        class B extends A{
+            constructor(){
+                // 繼承父
+                super();
+
+                this.name = "B";
+                this.other = "BBB";
+            }
+
+            // 自定函式
+            showOther(){
+                console.log(this.other);
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <script>
+        // 建立物件
+        var a = new A();
+        a.showName();
+
+        var b = new B();
+        b.showName();
+        b.showOther();
+    </script>
+  </body>
+</html>
