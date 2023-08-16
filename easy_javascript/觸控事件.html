@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+      <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,minimal-ui:ios">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>觸控事件 </title>
+            <link rel="stylesheet" href="">
+      </head>
+
+      <body>
+
+            <!--
+                  touchstart 事件： 手指按下去的當下 (就像是 滑鼠按下去的當下 - mousedown事件)
+                  touchmove 事件： 手指滑動 (像 滑鼠滑動 - mousemove事件)
+                  touchend 事件： 手指離開後 (像 滑鼠離開 - mouseup事件)
+                  touchcancel 事件： 取消觸控
+
+                  取得 觸控時的點位：
+                  e.touches[0].clientX
+                  e.touches[0].clientY
+
+                  範例：
+                  $('body').bind('touchstart', function (e) {
+                              e.preventDefault();
+                              var offset = $(e.currentTarget).offset();
+                              var x = e.touches[0].clientX - offset.left;
+                              var y = e.touches[0].clientY - offset.top;
+                        });
+            -->
+
+      </body>
+</html>
