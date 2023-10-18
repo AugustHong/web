@@ -24,6 +24,13 @@
             //取代空白
             text = text.replace(/\s+/g, "");
 
+            // 用 斷行 分割
+            // var tList = test.split(/[\n]/);
+            // 用 空白 分割
+            // var tList = test.split(/[\s]/);
+            // 用 斷行 或 空白 分割
+            // var tList = test.split(/[\s\n]/);
+
             //js的取代只會取代第一個
             //例如： var str = "123, 456, 789";
             //則 str.replace(",", "-");   => 123- 456, 789
