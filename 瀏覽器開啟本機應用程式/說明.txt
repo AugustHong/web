@@ -1,0 +1,22 @@
+(1) 參考網址： https://jiaming0708.github.io/2021/10/11/browser-open-application/
+(2) 設定 登錄檔 (reg檔)，或者也可以用 Window + R  再輸入 regedit 去看內容
+(3)   登錄檔 內容說明
+
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\{你想取的名稱，例如：call-exe-test}]
+"URL Protocol"=""
+@="URL:{你想取的名稱，例如：call-exe-test}"
+
+[HKEY_CLASSES_ROOT\{你想取的名稱，例如：call-exe-test}\shell]
+
+[HKEY_CLASSES_ROOT\{你想取的名稱，例如：call-exe-test}\shell\open]
+
+[HKEY_CLASSES_ROOT\{你想取的名稱，例如：call-exe-test}\shell\open\command]
+@="\"D:\\Programes\\Microsoft VS Code\\Code.exe\" \"%1\""  -> 這段放要執行的 exe 絕對路徑(絕對路徑前後都要加 ")，所以有看到 \" 是因為要表示 ")
+
+而如果 要帶入變數的 就要 加入後面的 %1
+
+(4) 執行 登錄檔 
+(5)  用 Window + R  再輸入 regedit 去看內容 是否有新增  (目前實測會建立起來，但是  值一直不會是我們輸入的值會是空白，我猜可能是有中文導致的)
+(6)  用 chrome 輸入網址 {你想取的名稱，例如：call-exe-test}://{變數值(可有可無)}，但得進來的會是整個網址喔(可以拿我的實測就知道了)

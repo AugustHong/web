@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\call-exe-test]
+"URL Protocol"=""
+@="URL:call-exe-test"
+
+[HKEY_CLASSES_ROOT\call-exe-test\shell]
+
+[HKEY_CLASSES_ROOT\call-exe-test\shell\open]
+
+[HKEY_CLASSES_ROOT\call-exe-test\shell\open\command]
+@="\"C:\\Users\\user\\Desktop\\瀏覽器開啟本機應用程式\\1.exe\" \"%1\""
