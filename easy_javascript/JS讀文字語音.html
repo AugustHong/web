@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- Breadcrumb-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="測試 英數字 有語音">
+    <meta name="author" content="Łukasz Holeczek">
+    <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard">
+    <title>測試 英數字 有語音</title>
+</head>
+<body>
+    <label for="textInput">請輸入文字：</label> 
+    <input type="text" id="textInput" />
+    <button onclick="speakText()">播放</button>
+
+    <script>
+        // 播放語音
+        function speakText() { 
+            var textInput = document.getElementById('textInput').value; 
+            var msg = new SpeechSynthesisUtterance(textInput); 
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+</body>
+</html>
