@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML 表格直橫轉換</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; }
+        th, td { padding: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <table id="originalTable">
+        <caption>橫向表格</caption>
+        <tr>
+            <th>欄位1</th>
+            <th>欄位2</th>
+            <th>欄位3</th>
+        </tr>
+        <tr>
+            <td>數據1</td>
+            <td>數據2</td>
+            <td>數據3</td>
+        </tr>
+        <tr>
+            <td>數據A</td>
+            <td>數據B</td>
+            <td>數據C</td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <button onclick="transposeTable('originalTable', 'transposedTable')">轉換表格(橫轉直)</button>
+
+    <br><br>
+
+    <table id="transposedTable">
+        <caption>直向表格</caption>
+    </table>
+
+    <br><br>
+
+    <button onclick="transposeTable('transposedTable', 'transposedTable2')">轉換表格(直轉橫)</button>
+
+    <br><br>
+
+    <table id="transposedTable2">
+        <caption>橫向表格(直轉橫)</caption>
+    </table>
+
+    <br><br>
+
+    <button onclick="transposeTable('transposedTable2', 'transposedTable2')">轉換表格(直橫互轉)</button>
+
+    <br><br>
+    <hr>
+
+    <!--底下這邊是設定 當大小過小時，會自動橫轉直-->
+    <table id="tableH">
+        <tr>
+            <th>欄位1</th>
+            <th>欄位2</th>
+            <th>欄位3</th>
+        </tr>
+        <tr>
+            <td>甲</td>
+            <td>乙</td>
+            <td>丙</td>
+        </tr>
+    </table>
+
+    <table id="tableV" style="display: none;">
+    </table>
+
+    <script>
+        function transposeTable(source, target) {
+            const originalTable = document.getElementById(source);
+            const transposedTable = document.createElement('table');
+            //const transposedTable = document.getElementById(target);
+            //transposedTable.innerHTML = '';
+
+            const rows = originalTable.rows;
+            for (let i = 0; i < rows[0].cells.length; i++) {
+                const newRow = transposedTable.insertRow();
+                for (let j = 0; j < rows.length; j++) {
+                    const newCell = newRow.insertCell();
+                    newCell.innerHTML = rows[j].cells[i].innerHTML;
+                }
+            }
+
+            document.getElementById(target).innerHTML = transposedTable.innerHTML;
+            transposedTable.remove();
+        }
+    </script>
+
+    <!--大小過小時，自動轉橫直向-->
+    <script>
+        // 第1步先將 橫的轉直的
+        transposeTable('tableH', 'tableV');
+
+        // 設定監聽，當大小過小時自動轉直向
+        window.addEventListener('resize', function() {
+            console.log(window.innerWidth);
+            var max = 800;
+            if (window.innerWidth <= max){
+                // 轉直向
+                document.getElementById('tableH').style.display = "none";
+                document.getElementById('tableV').style.display = "";
+            }
+            else{
+                // 轉橫向
+                document.getElementById('tableH').style.display = "";
+                document.getElementById('tableV').style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
