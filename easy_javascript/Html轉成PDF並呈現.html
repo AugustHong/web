@@ -21,8 +21,22 @@
     });
 
     document.getElementById('generateAndPrint').addEventListener('click', () => {
+        const options = {
+                margin: [10, 10, 10, 10], // 上、右、下、左邊距
+                filename: 'output.pdf',
+                //jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                jsPDF: {
+                    unit: 'mm', // 單位（可選擇 'mm', 'cm', 'in', 或 'px'）
+                    format: [210, 297], // PDF 尺寸 (例如 [210, 297] 為 A4 尺寸)
+                    orientation: 'portrait' // 方向 ('portrait' 為直向, 'landscape' 為橫向)
+                },
+                pagebreak: { mode: ['css', 'legacy'] },  // 自動分頁
+                //html2canvas: { windowWidth: 800, windowHeight: 600 }
+            };
         const element = document.getElementById('content');
-        html2pdf().from(element).toPdf().get('pdf').then((pdf) => {
+        html2pdf().set(options).from(element).toPdf().get('pdf').then((pdf) => {
+        // 上面這段不知為何是A4，但出來的大小會被截掉一半，若發生此問題可試著用下面整個 body來產pdf
+        // html2pdf().set(options).from(document.body).toPdf().get('pdf').then((pdf) => {
             const pdfData = pdf.output('dataurl');
             const newWindow = window.open();
             newWindow.document.write('<iframe id="pdfFrame" src="' + pdfData + '" style="width:100%;height:100%;border:none;"></iframe>');
