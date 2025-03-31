@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js 火焰效果</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<!--本Html是使用AI產生出的火焰特效，僅供參考學習使用 Three.js-->
+<body style="margin: 0; overflow: hidden;">
+  <script>
+    // 設置場景、相機和渲染器
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 500);
+    const renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+    document.body.appendChild(renderer.domElement);
+
+    // 粒子材質
+    const particleGeometry = new THREE.BufferGeometry();
+    const particleCount = 500; // 粒子數量
+    const positions = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      positions.push(
+        (Math.random() - 0.5) * 2, // X軸隨機分佈
+        Math.random() * 2, // Y軸位置
+        (Math.random() - 0.5) * 2  // Z軸隨機分佈
+      );
+    }
+
+    particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+      size: 0.1,
+      color: 0xff4500, // 火焰顏色
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particles);
+
+    camera.position.z = 5;
+
+    // 動畫函數
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // 粒子上升模擬火焰
+      const positions = particleGeometry.attributes.position.array;
+      for (let i = 1; i < positions.length; i += 3) {
+        positions[i] += 0.02; // Y軸上升
+        if (positions[i] > 2) positions[i] = 0; // 重置高度
+      }
+
+      particleGeometry.attributes.position.needsUpdate = true;
+
+      // 渲染場景
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
