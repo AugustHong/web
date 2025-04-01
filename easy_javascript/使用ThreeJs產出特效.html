@@ -7,26 +7,49 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <!--本Html是使用AI產生出的火焰特效，僅供參考學習使用 Three.js-->
+<!--參考網址： https://ithelp.ithome.com.tw/articles/10199702-->
 <body style="margin: 0; overflow: hidden;">
   <script>
     // 設置場景、相機和渲染器
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 500);
-    const renderer = new THREE.WebGLRenderer();
+    // alpha：透明  / shadowMap：陰影
+    const renderer = new THREE.WebGLRenderer({ alpha: true, shadowMap: true });
 
-    renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+    renderer.setSize(window.innerWidth / 2, window.innerHeight / 2); // 預設大小
+    //renderer.setClearColor(0xeeeeee, 1.0); // 預設背景顏色 (預設黑色)，但若有設 alpha = true 會是透明
+    //renderer.setClearColor(0xffffff, 1.0); // 背景白色
+    //renderer.setClearColor(0x000000, 0); // 第二個參數是透明度，0 表示完全透明    
+    
+    // 調整渲染器的位置
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = '150px'; // 距離頁面頂部 50 像素
+    renderer.domElement.style.left = '300px'; // 距離頁面左側 100 像素
+
     document.body.appendChild(renderer.domElement);
+
+    // 相機 (相關參數說明如下，以下照順序)
+    /*
+      視角（fov, field of view）：又稱為視野、視場，指的是我們能從畫面上看到的視野範圍，一般在遊戲中會設定在 60 ~ 90 度)
+      畫面寬高比（aspect）：渲染結果的畫面比例，一般都是使用 window.innerWidth / window.innerHeight
+      近面距離（near）：從距離相機多近的地方開始渲染，一般推薦使用 0.1
+      遠面距離（far）：相機能看得多遠，一般推薦使用 1000，可視需求調整，設置過大會影響效能
+    */
+    const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // camera.lookAt(scene.position); // 固定位置
 
     // 粒子材質
     const particleGeometry = new THREE.BufferGeometry();
     const particleCount = 500; // 粒子數量
     const positions = [];
 
+    // 出現位置
+    let firePosition = { x: 0, y: 0, z: 0 }; // 火焰生成位置
+
     for (let i = 0; i < particleCount; i++) {
       positions.push(
-        (Math.random() - 0.5) * 2, // X軸隨機分佈
-        Math.random() * 2, // Y軸位置
-        (Math.random() - 0.5) * 2  // Z軸隨機分佈
+        (Math.random() - 0.5) * 2 + firePosition.x, // X軸隨機分佈
+        Math.random() * 2 + firePosition.y, // Y軸位置
+        (Math.random() - 0.5) * 2 + firePosition.z  // Z軸隨機分佈
       );
     }
 
@@ -36,7 +59,7 @@
       size: 0.1,
       color: 0xff4500, // 火焰顏色
       transparent: true,
-      opacity: 0.8,
+      opacity: 1, // 透明度
       blending: THREE.AdditiveBlending
     });
 
