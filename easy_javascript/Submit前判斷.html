@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Submit前額外判斷</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+  <form id="Form1" onsubmit="alert('Submit-1');">
+    <button type="submit">送出1</button>
+  </form>
+
+  <form id="Form2" onsubmit="alert('Submit-2');">
+    <button type="submit">送出2</button>
+  </form>
+
+  
+  <!--方法1：使用 JS原生的事件 (但這個會導致 OnSubmit被跑2次！！)-->
+  <script>
+    var form = $('#Form1')[0];
+
+    // 使用 addEventListener 來實作
+    // 備註： 這個會在 OnSubmit之前做，所以如果有 Jquery valid 的一樣會處理不用管
+    form.addEventListener("submit", function (event) {
+        console.log("submit - 1");
+        event.preventDefault();  // 阻止後續的事件 (因為要先判斷)
+
+        // 這裡可以寫判斷式
+        if (true){
+            alert('執行 submit - 1 之前');
+            // 呼叫原本的 Submit 邏輯  (不管有沒有呼叫，都會執行原本的 Submit，所以導致跑2次)
+            // 但若不阻止，就無法達到我想要的 若是 false 就中斷後面的執行
+            // 故結論是 使用方法二 比較行
+            //return $(this).submit();
+        }
+    }, true); // 捕獲階段，會比原本的 onsubmit 更早執行
+  </script>
+
+  <!--方法2：覆寫原本的 OnSubmit事件-->
+  <script>
+    const form2 = document.getElementById("Form2");
+    const oldSubmit = form2.onsubmit; // 先存下原本的
+
+    form2.onsubmit = function(event) {
+        console.log("submit - 2");
+        event.preventDefault();  // 阻止後續的事件 (因為要先判斷)
+
+        // 如果有 jquery valid 的話要補上這段
+        /*
+        if ($(this).validationEngine('validate') == false) {
+            return false;
+        }
+        */
+
+        // 這裡可以寫判斷式
+        if (true){
+            alert('執行 submit - 2');
+            // 通過才執行原本的
+            if (typeof oldSubmit === "function") {
+              return oldSubmit.call(this, event);
+            }
+        }
+    }
+  </script>
+
+</body>
+</html>
