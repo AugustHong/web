@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>條碼批次掃描</title>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        input {
+            padding: 8px;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 400px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        .count {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>條碼批次掃描</h2>
+
+<!-- 掃描輸入框 -->
+<input type="text" id="scanInput" placeholder="請掃描條碼" autofocus />
+<button id="btnSubmit">批次處理</button>
+
+<div class="count">
+    最大一次可掃描： <span id="maxCount">0</span> 筆 <br>
+    已掃描：<span id="count">0</span> 筆
+</div>
+
+<!-- 清單 -->
+<table>
+    <thead>
+        <tr>
+            <th>條碼</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody id="barcodeTable"></tbody>
+</table>
+
+<script>
+    let barcodeList = [];
+    var maxCount = 5;
+    var ticketLength = 15;
+
+    $('#maxCount').text(maxCount);
+
+    $('#scanInput').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            let code = $(this).val().trim();
+            if (code === '') return;
+
+            if (barcodeList.includes(code)) {
+                alert('此條碼已掃描');
+                $(this).val('');
+                return;
+            }
+
+            if (barcodeList.length >= maxCount){
+                alert('已超過最大上限條碼數');
+                $(this).val('');
+                return;
+            }
+
+            if (code.length != ticketLength){
+                alert('此資料非指定條碼格式');
+                $(this).val('');
+                return;
+            }
+
+            barcodeList.push(code);
+            addRow(code);
+            updateCount();
+            $(this).val('');
+        }
+    });
+
+    // 加入1欄
+    function addRow(code) {
+        let row = `
+            <tr data-code="${code}">
+                <td>${code}</td>
+                <td>
+                    <button class="btnDelete">刪除</button>
+                </td>
+            </tr>
+        `;
+        $('#barcodeTable').append(row);
+    }
+
+    // 刪除
+    $(document).on('click', '.btnDelete', function () {
+        let row = $(this).closest('tr');
+        let code = row.data('code');
+
+        barcodeList = barcodeList.filter(x => x !== code);
+        row.remove();
+
+        updateCount();
+    });
+
+    // 更新筆數
+    function updateCount() {
+        $('#count').text(barcodeList.length);
+        $('#scanInput').focus();
+    }
+
+    // 送出
+    $('#btnSubmit').click(function () {
+
+        if (barcodeList.length === 0) {
+            alert('請先掃描條碼');
+            return;
+        }
+
+        alert('送出條碼：\n' + barcodeList.join('\n'));
+
+        barcodeList = [];
+        $('#barcodeTable').empty();
+        updateCount();
+    });
+</script>
+
+</body>
+</html>
