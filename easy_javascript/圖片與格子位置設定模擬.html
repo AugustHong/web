@@ -171,6 +171,7 @@
             <button onclick="alignCanvas('right')">→ 置右</button>
             <button onclick="resetCanvas()">↺ 重置位置</button>
             <button onclick="imageInput.click()">＋ 加入圖片</button>
+            <button onclick="toggleFullscreen()">⛶ 全螢幕</button>
 
         </div>
 
@@ -325,6 +326,24 @@
         // 重置位置
         function resetCanvas() {
             centerCanvas();
+        }
+
+        /* =========================
+            全螢幕功能
+        ========================= */
+
+        function toggleFullscreen() {
+
+            if (!document.fullscreenElement) {
+
+                document.documentElement.requestFullscreen();
+
+            } else {
+
+                document.exitFullscreen();
+
+            }
+
         }
 
         /* =========================
