@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片與格子位置設定模擬</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        /* 上方空白區 */
+        .top-area {
+            height: 100px;
+            background: white;
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* 手機式選單工具列 */
+        /* 浮動選單容器 */
+        .floating-menu {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+        }
+
+        /* 浮動主按鈕 */
+        .menu-button {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            background: #333;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 點擊效果 */
+        .menu-button:active {
+            transform: scale(0.94);
+        }
+
+        /* 下拉選單 */
+        .dropdown-menu {
+            position: absolute;
+            top: 56px;
+            left: 0;
+            min-width: 170px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 展開 */
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        /* 選單項目 */
+        .dropdown-menu button {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-bottom: 1px solid #eee;
+            background: white;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-menu button:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu button:hover {
+            background: #dceaff;
+        }
+
+        /* 工作區 */
+        .workspace {
+            width: 100%;
+            height: calc(100vh - 100px);
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            background: #d8d8d8;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .workspace:active {
+            cursor: grabbing;
+        }
+
+        /* 畫布 */
+        .canvas {
+            position: absolute;
+            width: 52.5cm;
+            height: 31.5cm;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(30, 1.75cm);
+            grid-template-rows: repeat(21, 1.5cm);
+            border: 1px solid #555;
+            flex-shrink: 0;
+        }
+
+        /* 格子 */
+        .cell {
+            width: 1.75cm;
+            height: 1.5cm;
+            border: 1px solid #aaa;
+            position: relative;
+        }
+
+        /* 圖片 */
+        .canvas-image {
+            position: absolute;
+            max-width: none;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            z-index: 10;
+            transform-origin: top left;
+        }
+
+        /* 隱藏捲軸 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-area"></div>
+
+    <!-- 功能選單 -->
+    <!-- 浮動功能選單 -->
+    <div class="floating-menu">
+
+        <button class="menu-button" id="menuButton">
+            ☰
+        </button>
+
+        <div class="dropdown-menu" id="dropdownMenu">
+
+            <button onclick="centerCanvas()">⊙ 置中</button>
+            <button onclick="alignCanvas('top')">↑ 置頂</button>
+            <button onclick="alignCanvas('bottom')">↓ 置底</button>
+            <button onclick="alignCanvas('left')">← 置左</button>
+            <button onclick="alignCanvas('right')">→ 置右</button>
+            <button onclick="resetCanvas()">↺ 重置位置</button>
+            <button onclick="imageInput.click()">＋ 加入圖片</button>
+
+        </div>
+
+        <input type="file" id="imageInput" accept="image/*" hidden>
+
+    </div>
+
+    <!-- 工作區 -->
+    <div class="workspace" id="workspace">
+
+        <div class="canvas" id="canvas"></div>
+
+    </div>
+
+    <!--Script語法區-->
+    <script>
+
+        const workspace = document.getElementById("workspace");
+        const canvas = document.getElementById("canvas");
+        const imageInput = document.getElementById("imageInput");
+
+        const menuButton = document.getElementById("menuButton");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        /* =========================
+           手機下拉選單
+        ========================= */
+
+        menuButton.addEventListener("click", function (e) {
+
+            e.stopPropagation();
+
+            dropdownMenu.classList.toggle("show");
+
+        });
+
+        // 點擊選單以外的地方，自動收起
+        document.addEventListener("click", function (e) {
+
+            if (!dropdownMenu.contains(e.target) &&
+                !menuButton.contains(e.target)) {
+
+                dropdownMenu.classList.remove("show");
+
+            }
+
+        });
+
+        // 選擇功能後自動收起
+        dropdownMenu.addEventListener("click", function (e) {
+
+            if (e.target.closest("button")) {
+                dropdownMenu.classList.remove("show");
+            }
+
+        });
+
+        /* =========================
+           建立 30 x 21 格子
+        ========================= */
+
+        for (let i = 0; i < 30 * 21; i++) {
+
+            const cell = document.createElement("div");
+
+            cell.className = "cell";
+
+            canvas.appendChild(cell);
+
+        }
+
+        /* =========================
+           更新畫布位置
+        ========================= */
+
+        function updateCanvas() {
+
+            canvas.style.transform =
+                `translate(calc(-50% + ${offsetX}px),
+                   calc(-50% + ${offsetY}px))`;
+
+        }
+
+        /* =========================
+           取得畫布與工作區尺寸
+        ========================= */
+
+        function getCanvasSize() {
+
+            return {
+                canvasWidth: canvas.offsetWidth,
+                canvasHeight: canvas.offsetHeight,
+                workspaceWidth: workspace.clientWidth,
+                workspaceHeight: workspace.clientHeight
+            };
+
+        }
+
+        /* =========================
+           五種位置設定
+        ========================= */
+
+        // 置中
+        function centerCanvas() {
+
+            offsetX = 0;
+            offsetY = 0;
+
+            updateCanvas();
+
+        }
+
+        // 置頂、置底、置左、置右
+        function alignCanvas(position) {
+
+            const size = getCanvasSize();
+
+            const halfW = size.canvasWidth / 2;
+            const halfH = size.canvasHeight / 2;
+
+            switch (position) {
+
+                case "top":
+                    offsetY = -size.workspaceHeight / 2 + halfH;
+                    break;
+
+                case "bottom":
+                    offsetY = size.workspaceHeight / 2 - halfH;
+                    break;
+
+                case "left":
+                    offsetX = -size.workspaceWidth / 2 + halfW;
+                    break;
+
+                case "right":
+                    offsetX = size.workspaceWidth / 2 - halfW;
+                    break;
+
+            }
+
+            updateCanvas();
+
+        }
+
+        // 重置位置
+        function resetCanvas() {
+            centerCanvas();
+        }
+
+        /* =========================
+           拖動整個畫布
+        ========================= */
+
+        let dragPointerId = null;
+
+        workspace.addEventListener("pointerdown", function (e) {
+
+            if (e.target.closest(".canvas-image")) return;
+
+            if (e.button !== 0 && e.pointerType === "mouse") return;
+
+            dragPointerId = e.pointerId;
+
+            isDragging = true;
+
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
+
+            workspace.setPointerCapture(e.pointerId);
+
+            e.preventDefault();
+
+        });
+
+        workspace.addEventListener("pointermove", function (e) {
+
+            if (!isDragging || e.pointerId !== dragPointerId) return;
+
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+
+            updateCanvas();
+
+        });
+
+        function stopCanvasDragging(e) {
+
+            if (e.pointerId !== dragPointerId) return;
+
+            isDragging = false;
+
+            if (workspace.hasPointerCapture(e.pointerId)) {
+                workspace.releasePointerCapture(e.pointerId);
+            }
+
+            dragPointerId = null;
+
+        }
+
+        workspace.addEventListener("pointerup", stopCanvasDragging);
+        workspace.addEventListener("pointercancel", stopCanvasDragging);
+
+        workspace.addEventListener("lostpointercapture", function (e) {
+
+            if (e.pointerId === dragPointerId) {
+
+                isDragging = false;
+                dragPointerId = null;
+
+            }
+
+        });
+
+        /* =========================
+           加入圖片
+        ========================= */
+
+        imageInput.addEventListener("change", function (e) {
+
+            const file = e.target.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                const img = document.createElement("img");
+
+                img.src = event.target.result;
+                img.className = "canvas-image";
+
+                img.style.width = "auto";
+                img.style.height = "auto";
+                img.style.left = "50%";
+                img.style.top = "50%";
+
+                canvas.appendChild(img);
+
+                /* 圖片拖動 */
+                let moving = false;
+                let imgStartX = 0;
+                let imgStartY = 0;
+                let imgLeft = 0;
+                let imgTop = 0;
+                let activePointerId = null;
+
+                img.addEventListener("pointerdown", function (ev) {
+
+                    ev.preventDefault();
+                    ev.stopPropagation();
+
+                    moving = true;
+                    activePointerId = ev.pointerId;
+
+                    imgStartX = ev.clientX;
+                    imgStartY = ev.clientY;
+
+                    imgLeft = img.offsetLeft;
+                    imgTop = img.offsetTop;
+
+                    img.setPointerCapture(ev.pointerId);
+
+                });
+
+                img.addEventListener("pointermove", function (ev) {
+
+                    if (!moving || ev.pointerId !== activePointerId) return;
+
+                    const dx = ev.clientX - imgStartX;
+                    const dy = ev.clientY - imgStartY;
+
+                    img.style.left = (imgLeft + dx) + "px";
+                    img.style.top = (imgTop + dy) + "px";
+
+                });
+
+                function stopImageDragging(ev) {
+
+                    if (ev.pointerId !== activePointerId) return;
+
+                    moving = false;
+
+                    if (img.hasPointerCapture(ev.pointerId)) {
+                        img.releasePointerCapture(ev.pointerId);
+                    }
+
+                    activePointerId = null;
+
+                }
+
+                img.addEventListener("pointerup", stopImageDragging);
+                img.addEventListener("pointercancel", stopImageDragging);
+
+                img.addEventListener("lostpointercapture", function (ev) {
+
+                    if (ev.pointerId === activePointerId) {
+                        moving = false;
+                        activePointerId = null;
+                    }
+
+                });
+
+                /* 滾輪縮放圖片 */
+                img.addEventListener("wheel", function (ev) {
+
+                    ev.preventDefault();
+
+                    let width = img.offsetWidth;
+
+                    width += ev.deltaY < 0 ? 20 : -20;
+
+                    if (width >= 30) {
+                        img.style.width = width + "px";
+                    }
+
+                }, {passive: false});
+
+            };
+
+            reader.readAsDataURL(file);
+
+            imageInput.value = "";
+
+        });
+
+    </script>
+
+</body>
+
+</html>
